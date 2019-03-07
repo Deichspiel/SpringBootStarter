@@ -1,0 +1,80 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments::common_header(_,~{::link})">
+	<link rel="stylesheet" type="text/css" href="/css/login.css"/>
+</head>
+<body>
+<div th:replace="fragments::header"></div>
+
+<div class="tab">
+	<button id="Logintab" class="tablinks" onclick="openTab(event, 'Login')">Anmelden</button>
+	<button id="Registertab" class="tablinks" onclick="openTab(event, 'Register')">Registrieren</button>
+</div>
+
+<div id="Login" class="tabcontent">
+	<th:block th:if="${info}">
+		<div class="infomsg" th:text="${info}" />
+	</th:block>
+	<th:block th:if="${param.error}">
+		<div class="errormsg">
+			Falscher Benutzername und/oder Passwort.
+		</div>
+	</th:block>
+	<th:block th:if="${param.logout}">
+		<div class="infomsg">
+			Sie haben sich abgemeldet.
+		</div>
+	</th:block>
+	<form th:action="@{/login}" method="post">
+		<div>
+			<span class="label">Benutzername:</span><input type="text" name="username" required="required"/>
+		</div>
+		<div>
+			<span class="label">Passwort:</span><input type="password" name="password" required="required"/>
+		</div>
+		<input type="submit" value="Anmelden"/>
+	</form>
+</div>
+<div id="Register" class="tabcontent">
+	<th:block th:if="${error}">
+		<div class="errormsg" th:text="${error}" />
+	</th:block>
+	<form th:action="@{/register}" method="post" th:object="${register}">
+		<div>
+			<span class="label">Benutzername:</span><input type="text" name="name" th:field="*{name}" required="required"/>
+			<p th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Bitte geben Sie einen Benutzernamen ein!</p>
+		</div>
+		<div>
+			<span class="label">Passwort:</span><input type="password" name="password" th:field="*{password}" required="required"/>
+			<p th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Bitte geben Sie ein Passwort ein!</p>
+		</div>
+		<div>
+			<span class="label">Wiederholen:</span><input type="password" name="password1" th:field="*{password1}" required="required"/>
+			<p th:if="${#fields.hasErrors('password1')}" th:errors="*{password1}">Bitte wiederholen Sie das Passwort!</p>
+		</div>
+		<input type="submit" value="Registrieren"/>
+	</form>
+</div>
+
+<div th:replace="fragments::footer"></div>
+<script>
+	function openTab(evt, tabName) {
+	  var i, tabcontent, tablinks;
+	  tabcontent = document.getElementsByClassName("tabcontent");
+	  for (i = 0; i < tabcontent.length; i++) {
+	    tabcontent[i].style.display = "none";
+	  }
+	  tablinks = document.getElementsByClassName("tablinks");
+	  for (i = 0; i < tablinks.length; i++) {
+	    tablinks[i].className = tablinks[i].className.replace(" active", "");
+	  }
+	  document.getElementById(tabName).style.display = "block";
+	  evt.currentTarget.className += " active";
+	}
+</script>
+<script th:inline="javascript">
+	document.getElementById("[(${tab})]").click();
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments::common_header(_,~{})">
+</head>
+<body>
+<div th:replace="fragments::header"></div>
+
+<table>
+	<thead><tr>
+		<th>Name</th>
+		<th>Resource</th>
+		<th>Start</th>
+		<th>Ende</th>
+		<th>Aktion</th>
+	</tr></thead>
+	<tbody>
+	<tr th:each="entry: ${termine}">
+		<td th:text="${entry.user}" />
+		<td th:text="${entry.resource}" />
+		<td th:text="${#temporals.format(entry.start, 'dd.MM.yyyy HH:mm')}" />
+		<td th:text="${#temporals.format(entry.end, 'dd.MM.yyyy HH:mm')}" />
+		<!-- Nur Termine des angemeldeten Benutzers koennen geloescht werden -->
+		<td th:switch="${entry.user}">
+			<span th:case="${#httpServletRequest.remoteUser}">
+				<form th:action="@{/termine/delete}" method="post">
+					<input type="text" name="id" th:value="${entry.id}" hidden="hidden" />
+					<!--<button class="imagebutton"><img src="/images/trash.png" alt="Löschen"/></button>-->
+					<button class="deletebutton" title="Löschen"><i class="material-icons">delete</i></button>
+				</form>
+			</span>
+			<span th:case="*"><button class="deletebutton disabled" disabled="disabled"><i class="material-icons">delete</i></button></span>
+		</td>
+	</tr>
+	</tbody>
+</table><br/>
+<th:block th:if="${info}">
+	<div class="infomsg" th:text="${info}" />
+</th:block>
+<th:block th:if="${error}">
+	<div class="errormsg" th:text="${error}" />
+</th:block>
+<form th:action="@{/termine/add}" method="post" th:object="${termin}">
+	<fieldset><legend>Neuer Termin:</legend>
+		<div><span class="label">Benutzer</span><input id="user" type="text" th:field="*{user}" th:value="${termin.user}" readonly="readonly"/></div>
+		<div><span class="label">Ressource</span><input id="resource" type="text" th:field="*{resource}" placeholder="Ressource" th:value="${termin.resource}" required="required"/></div>
+		<div><span class="label">Start</span><input id="start" type="datetime-local" th:field="*{start}" th:value="${termin.start}" required="required"/></div>
+		<div><span class="label">Ende</span><input id="end" type="datetime-local" th:field="*{end}" th:value="${termin.end}" required="required"/></div>
+		<input type="submit" value="Reservieren"/>
+	</fieldset>
+</form><br style="clear: both;"/>
+
+<div th:replace="fragments::footer"></div>
+</body>
+</html>

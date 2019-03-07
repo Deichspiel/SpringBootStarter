@@ -1,0 +1,56 @@
+table {
+	font-family: arial, sans-serif;
+	border-collapse: collapse;
+}
+td, th {
+	border: 1px solid #999999;
+	padding: 8px;
+}
+th {
+	text-align: center;
+}
+tr:nth-child(even) {
+	background-color: #dddddd;
+}
+input {
+	margin: 5px;
+}
+fieldset {
+	float: left;
+}
+
+.headline {
+	font-family: Times, serif;
+	font-size: 2.5em;
+	font-weight: bold;
+}
+.footline {
+	font-family: Verdana, Arial, sans;
+}
+.logoutform {
+	display: inline;
+}
+.logoutbutton, .deletebutton {
+	font-size:24px;
+	color:red;
+}
+.disabled {
+	color:grey;
+}
+.imagebutton {
+	/* background-color: rgba(255,255,255,0); */
+}
+.label {
+	width: 140px;
+	display: inline-block;
+}
+.infomsg {
+	font-weight: bold;
+	margin: 15px 0;
+	color: darkgreen;
+}
+.errormsg {
+	font-weight: bold;
+	margin: 15px 0;
+	color: red;
+}

@@ -1,0 +1,37 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:fragment="common_header(title,links)">
+	<title th:replace="${title}">Lab Days - Terminverwaltung</title>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="/css/app.css"/>
+
+	<th:block th:replace="${links}"/>
+</head>
+
+<body>
+
+<header th:fragment="header" class="headline">
+	<div sec:authorize="! isAuthenticated()">
+		Willkommen
+	</div>
+	<div sec:authorize="isAuthenticated()">Hallo <span sec:authentication="name"></span>
+		<form th:action="@{/logout}" method="post" class="logoutform">
+			<button class="logoutbutton" title="Abmelden"><i class="material-icons">exit_to_app</i></button>
+		</form>
+	</div>
+	<hr/>
+</header>
+
+<footer th:fragment="footer" class="footline">
+	<hr style="margin-top: 1em;"/>
+	<div>&copy; 2019 by Tom</div>
+	<div sec:authorize="isAuthenticated()">
+		<div><span class="label">Benutzername:</span><span sec:authentication="name"></span></div>
+		<div><span class="label">Rolle:</span><span sec:authentication="principal.authorities"></span></div>
+	</div>
+</footer>
+
+</body>
+</html>

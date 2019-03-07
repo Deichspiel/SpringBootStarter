@@ -1,0 +1,13 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-1.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"  xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments::common_header(_,~{})">
+</head>
+<body>
+<div th:replace="fragments::header"></div>
+
+<p><a th:href="@{/termine}">Hier</a> geht's zur Terminverwaltung.</p>
+
+<div th:replace="fragments::footer"></div>
+</body>
+</html>
