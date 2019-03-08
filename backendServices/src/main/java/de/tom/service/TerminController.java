@@ -29,7 +29,7 @@ public class TerminController {
 
 	@GetMapping({"", "/list"})
 	public ResponseEntity<TerminList> getTermine() {
-		final Iterable<Termin> termine = terminRepository.findAll( Sort.by( "resource", "start", "user" ) );
+		final Iterable<Termin> termine = terminRepository.findAll( Sort.by( "start", "resource", "user" ) );
 		TerminList terminList = new TerminList( termine );
 		ResponseEntity<TerminList> responseEntity = ResponseEntity.ok(terminList);
 		return responseEntity;
