@@ -2,6 +2,8 @@ package de.tom.service;
 
 import de.tom.dto.TerminDto;
 import de.tom.dto.TerminDtoList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.MessageSource;
@@ -22,6 +24,8 @@ import java.util.Locale;
 @RequestMapping(path="/termine")
 public class TerminService implements MessageSourceAware {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger( TerminService.class );
+
 	@Value( "${termin.restservice.url}" )
 	private String terminServiceUrl;
 
@@ -34,12 +38,14 @@ public class TerminService implements MessageSourceAware {
 
 	@GetMapping({"", "/list"})
 	public ModelAndView getTermine(Model model) {
+		LOGGER.debug( "Get /list" );
 		return initModelAndView( createTermin(), false );
 	}
 
 	@PostMapping("/delete")
 	public ModelAndView deleteTermin( Long id ) {
-		System.out.println("delete: id=" + id);
+		LOGGER.debug( "Post /delete with {}", id );
+
 		final boolean isDeleted = delete( id );
 		final ModelAndView modelAndView = initModelAndView( null, true );
 		modelAndView.getModel().put( "isDeleted", isDeleted );
@@ -48,7 +54,7 @@ public class TerminService implements MessageSourceAware {
 
 	@PostMapping("/add")
 	public ModelAndView addTermin( @ModelAttribute TerminDto termin, Model model) {
-		System.out.println("add: " + termin);
+		LOGGER.debug( "Post /add with {}", termin );
 
 		String error = null;
 		if( termin.getStart().isAfter( termin.getEnd() )) {
@@ -72,7 +78,7 @@ public class TerminService implements MessageSourceAware {
 	private boolean delete(Long id) {
 		RestTemplateBuilder builder = new RestTemplateBuilder();
 		RestTemplate restTemplate = builder.basicAuthorization("user", "password").build();
-		restTemplate.delete( terminServiceUrl + "/delete/" + id );
+		restTemplate.delete( terminServiceUrl + "/" + id );
 
 		return true;
 	}
@@ -98,19 +104,15 @@ public class TerminService implements MessageSourceAware {
 			mv.getModel().put( "termin", createTermin() );
 		}
 
-//		if( redirect ) {
-//			mv.setViewName( "redirect:/termine" );
-//		} else {
-			mv.setViewName( "termine" );
+		mv.setViewName( "termine" );
 
-			RestTemplateBuilder builder = new RestTemplateBuilder();
-			RestTemplate restTemplate = builder.basicAuthorization( "user", "password" ).build();
-			final TerminDtoList termine = restTemplate.getForObject( terminServiceUrl, TerminDtoList.class );
+		RestTemplateBuilder builder = new RestTemplateBuilder();
+		RestTemplate restTemplate = builder.basicAuthorization( "user", "password" ).build();
+		final TerminDtoList termine = restTemplate.getForObject( terminServiceUrl, TerminDtoList.class );
 
-			if( null != termine ) {
-				mv.getModel().put( "termine", termine.getTermine() );
-			}
-//		}
+		if( null != termine ) {
+			mv.getModel().put( "termine", termine.getTermine() );
+		}
 		return mv;
 	}
 

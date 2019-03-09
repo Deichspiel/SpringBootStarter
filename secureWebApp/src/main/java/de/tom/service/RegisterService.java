@@ -2,6 +2,8 @@ package de.tom.service;
 
 import de.tom.dto.AccountDto;
 import de.tom.dto.RegisterDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -24,6 +26,8 @@ import java.util.Objects;
 @RequestMapping(path="/register")
 public class RegisterService implements MessageSourceAware {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger( RegisterService.class );
+
 	@Value( "${account.restservice.url}" )
 	private String accountServiceUrl;
 
@@ -39,7 +43,8 @@ public class RegisterService implements MessageSourceAware {
 
 	@PostMapping("")
 	public ModelAndView register( @ModelAttribute RegisterDto register, Model model ) {
-		System.out.println("add: " + register);
+		LOGGER.debug( "Post / with {}", register );
+
 		String error = null;
 		if( !Objects.equals(register.getPassword(), register.getPassword1()) ) {
 			error = messageSource.getMessage( "register.passwordDistinct", null, Locale.getDefault() );
@@ -55,7 +60,7 @@ public class RegisterService implements MessageSourceAware {
 				restTemplate = builder.basicAuthorization("user", "password").build();
 				final ResponseEntity<AccountDto> entity = restTemplate.postForEntity( accountServiceUrl + "/register", account, AccountDto.class );
 				final AccountDto accountDto = entity.getBody();
-				System.out.println("registered: " + accountDto);
+				LOGGER.debug( "registered: {}", accountDto );
 			}
 		}
 		ModelAndView mv = new ModelAndView();

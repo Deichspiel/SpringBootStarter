@@ -2,6 +2,8 @@ package de.tom.service;
 
 import de.tom.dto.AccountDto;
 import de.tom.dto.RegisterDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
@@ -31,11 +33,15 @@ import java.util.Set;
 @RequestMapping(path="/login")
 public class AccountService implements UserDetailsService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger( AccountService.class );
+
 	@Value( "${account.restservice.url}" )
 	private String accountServiceUrl;
 
 	@Override
 	public UserDetails loadUserByUsername( @NotEmpty String name ) throws UsernameNotFoundException {
+		LOGGER.debug( "Called loadUserByUsername({})", name );
+
 		if( null == name || name.isEmpty() ) {
 			throw new UsernameNotFoundException( "Es wurde kein Benutzername angegeben!" );
 		}
@@ -53,11 +59,13 @@ public class AccountService implements UserDetailsService {
 			}
 		} catch( HttpStatusCodeException hce ) {
 			if( hce.getStatusCode() != HttpStatus.NOT_FOUND ) {
-				System.err.println( "(" + hce.getClass().getSimpleName() + "): " + hce.getLocalizedMessage() );
+				LOGGER.error( "Got HttpError: {} ", hce, hce.getLocalizedMessage() );
 				throw hce;
 			}
 		}
-		throw new UsernameNotFoundException( "Benutzer mit Namen '" + name + "' nicht gefunden!" );
+		final UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException( "Benutzer mit Namen '" + name + "' nicht gefunden!" );
+		LOGGER.error( "User not found: {}", usernameNotFoundException, usernameNotFoundException.getLocalizedMessage() );
+		throw usernameNotFoundException;
 	}
 
 	private void login( AccountDto account, final Set<GrantedAuthority> authorities ) {
@@ -78,6 +86,8 @@ public class AccountService implements UserDetailsService {
 
 	@GetMapping("")
 	public ModelAndView login() {
+		LOGGER.debug( "Get login" );
+
 		ModelAndView mv = new ModelAndView();
 		mv.setViewName( "login" );
 		mv.getModel().put( "register", new RegisterDto() );
