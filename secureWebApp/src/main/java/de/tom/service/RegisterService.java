@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -51,7 +53,16 @@ public class RegisterService implements MessageSourceAware {
 		} else {
 			RestTemplateBuilder builder = new RestTemplateBuilder();
 			RestTemplate restTemplate = builder.basicAuthorization("user", "password").build();
-			Boolean exists = restTemplate.getForObject( accountServiceUrl + "/exists/" + register.getName(), Boolean.class);
+			Boolean exists;
+			try {
+				exists = restTemplate.getForObject( accountServiceUrl + "/exists/" + register.getName(), Boolean.class);
+			} catch( HttpStatusCodeException hsce ) {
+				if( HttpStatus.NOT_FOUND == hsce.getStatusCode() ) {
+					exists = false;
+				} else {
+					throw hsce;
+				}
+			}
 			if( null != exists && exists ) {
 				error = messageSource.getMessage( "register.userExists", null, Locale.getDefault() );
 			} else {
