@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -37,8 +35,7 @@ public class TerminController {
 
 		final Iterable<Termin> termine = terminRepository.findAll( Sort.by( "resource", "start", "user" ) );
 		TerminList terminList = new TerminList( termine );
-		ResponseEntity<TerminList> responseEntity = ResponseEntity.ok(terminList);
-		return responseEntity;
+		return ResponseEntity.ok(terminList);
 	}
 
 	@PostMapping("/alreadyBooked")
@@ -46,8 +43,7 @@ public class TerminController {
 		LOGGER.debug( "Post /alreadyBooked with {}", termin );
 
 		final boolean exists = terminRepository.alreadyBooked( termin.getResource(), termin.getStart(), termin.getEnd() );
-		ResponseEntity<Boolean> responseEntity = new ResponseEntity<>( exists, HttpStatus.OK );
-		return responseEntity;
+		return new ResponseEntity<>( exists, HttpStatus.OK );
 	}
 
 	@DeleteMapping("/{id}")
@@ -70,14 +66,13 @@ public class TerminController {
 	public ResponseEntity addTermin( @RequestBody Termin termin ) {
 		LOGGER.debug( "Post /add with {}", termin );
 
-		ResponseEntity<Boolean> responseEntity;
 		if( termin.getStart().isAfter( termin.getEnd() )) {
 			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Der Beginn des Termins liegt hinter seinem Ende!" );
 		} else if( terminRepository.alreadyBooked( termin.getResource(), termin.getStart(), termin.getEnd() ) ) {
 			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Die Ressource '" + termin.getResource() + "' ist zu dem Termin bereits gebucht." );
 		} else {
 			terminRepository.save( termin );
-			return new ResponseEntity<Boolean>(true, HttpStatus.OK );
+			return new ResponseEntity<>(true, HttpStatus.OK );
 		}
 	}
 }

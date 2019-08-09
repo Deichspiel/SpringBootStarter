@@ -25,6 +25,8 @@ import java.util.Locale;
 public class TerminService implements MessageSourceAware {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger( TerminService.class );
+	private static final String USER = "user";
+	private static final String PASSWORD = "password";
 
 	@Value( "${termin.restservice.url}" )
 	private String terminServiceUrl;
@@ -39,7 +41,7 @@ public class TerminService implements MessageSourceAware {
 	@GetMapping({"", "/list"})
 	public ModelAndView getTermine(Model model) {
 		LOGGER.debug( "Get /list" );
-		return initModelAndView( createTermin(), false );
+		return initModelAndView( createTermin() );
 	}
 
 	@PostMapping("/delete")
@@ -47,7 +49,7 @@ public class TerminService implements MessageSourceAware {
 		LOGGER.debug( "Post /delete with {}", id );
 
 		final boolean isDeleted = delete( id );
-		final ModelAndView modelAndView = initModelAndView( null, true );
+		final ModelAndView modelAndView = initModelAndView( null );
 		modelAndView.getModel().put( "isDeleted", isDeleted );
 		return modelAndView;
 	}
@@ -66,10 +68,10 @@ public class TerminService implements MessageSourceAware {
 		}
 		ModelAndView mv;
 		if( null == error ) {
-			mv = initModelAndView( null, true );
+			mv = initModelAndView( null );
 			mv.getModel().put("info", messageSource.getMessage( "termin.booked", null, Locale.getDefault() ));
 		} else {
-			mv = initModelAndView( termin, true );
+			mv = initModelAndView( termin );
 			mv.getModel().put("error", error);
 		}
 		return mv;
@@ -77,26 +79,25 @@ public class TerminService implements MessageSourceAware {
 
 	private boolean delete(Long id) {
 		RestTemplateBuilder builder = new RestTemplateBuilder();
-		RestTemplate restTemplate = builder.basicAuthorization("user", "password").build();
+		RestTemplate restTemplate = builder.basicAuthentication( USER, PASSWORD ).build();
 		restTemplate.delete( terminServiceUrl + "/" + id );
 
 		return true;
 	}
 
-	private boolean alreadyBooked( final TerminDto termin ) {
+	private Boolean alreadyBooked( final TerminDto termin ) {
 		RestTemplateBuilder builder = new RestTemplateBuilder();
-		RestTemplate restTemplate = builder.basicAuthorization("user", "password").build();
-		final Boolean b = restTemplate.postForObject( terminServiceUrl + "/alreadyBooked", termin, Boolean.class );
-		return b;
+		RestTemplate restTemplate = builder.basicAuthentication( USER, PASSWORD ).build();
+		return restTemplate.postForObject( terminServiceUrl + "/alreadyBooked", termin, Boolean.class );
 	}
 
 	private void saveTermin( final TerminDto termin ) {
 		RestTemplateBuilder builder = new RestTemplateBuilder();
-		RestTemplate restTemplate = builder.basicAuthorization("user", "password").build();
+		RestTemplate restTemplate = builder.basicAuthentication( USER, PASSWORD ).build();
 		restTemplate.postForObject( terminServiceUrl + "/add", termin, Boolean.class );
 	}
 
-	private ModelAndView initModelAndView(final TerminDto termin, final boolean redirect) {
+	private ModelAndView initModelAndView(final TerminDto termin) {
 		ModelAndView mv = new ModelAndView();
 		if( null != termin ) {
 			mv.getModel().put( "termin", termin );
@@ -107,7 +108,7 @@ public class TerminService implements MessageSourceAware {
 		mv.setViewName( "termine" );
 
 		RestTemplateBuilder builder = new RestTemplateBuilder();
-		RestTemplate restTemplate = builder.basicAuthorization( "user", "password" ).build();
+		RestTemplate restTemplate = builder.basicAuthentication( USER, PASSWORD ).build();
 		final TerminDtoList termine = restTemplate.getForObject( terminServiceUrl, TerminDtoList.class );
 
 		if( null != termine ) {
