@@ -52,7 +52,7 @@ public class RegisterService implements MessageSourceAware {
 			error = messageSource.getMessage( "register.passwordDistinct", null, Locale.getDefault() );
 		} else {
 			RestTemplateBuilder builder = new RestTemplateBuilder();
-			RestTemplate restTemplate = builder.basicAuthorization("user", "password").build();
+			RestTemplate restTemplate = builder.basicAuthentication("user", "password").build();
 			Boolean exists;
 			try {
 				exists = restTemplate.getForObject( accountServiceUrl + "/exists/" + register.getName(), Boolean.class);
@@ -68,7 +68,7 @@ public class RegisterService implements MessageSourceAware {
 			} else {
 				register.setPassword( passwordEncoder.encode( register.getPassword() ) );
 				AccountDto account = new AccountDto( register );
-				restTemplate = builder.basicAuthorization("user", "password").build();
+				restTemplate = builder.basicAuthentication("user", "password").build();
 				final ResponseEntity<AccountDto> entity = restTemplate.postForEntity( accountServiceUrl + "/register", account, AccountDto.class );
 				final AccountDto accountDto = entity.getBody();
 				LOGGER.debug( "registered: {}", accountDto );

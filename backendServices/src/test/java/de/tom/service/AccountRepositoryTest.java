@@ -17,7 +17,7 @@ public class AccountRepositoryTest {
 	@Autowired
 	private AccountRepository accountRepository;
 
-	@Ignore
+//	@Ignore
 	@Test
 	public void testDel() {
 		Account account = accountRepository.findByName( "Franz" );

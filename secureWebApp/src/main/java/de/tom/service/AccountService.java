@@ -46,7 +46,7 @@ public class AccountService implements UserDetailsService {
 			throw new UsernameNotFoundException( "Es wurde kein Benutzername angegeben!" );
 		}
 		RestTemplateBuilder builder = new RestTemplateBuilder();
-		RestTemplate restTemplate = builder.basicAuthorization("user", "password").build();
+		RestTemplate restTemplate = builder.basicAuthentication("user", "password").build();
 		try {
 			Boolean exists = restTemplate.getForObject( accountServiceUrl + "/exists/" + name, Boolean.class );
 			if( null != exists && exists ) {
